@@ -9,16 +9,10 @@ use std::ops::Add;
 pub fn parse_duration(value: &str) -> Option<Duration> {
     if let Some(days) = parse_days(value) {
         Some(days)
+    } else if let Some(hours) = parse_hours(value) {
+        Some(hours)
     } else {
-        if let Some(hours) = parse_hours(value) {
-            Some(hours)
-        } else {
-            if let Some(minutes) = parse_hours_and_minutes(value) {
-                Some(minutes)
-            } else {
-                None
-            }
-        }
+        parse_hours_and_minutes(value)
     }
 }
 

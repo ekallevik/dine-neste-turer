@@ -1,7 +1,7 @@
-use rusqlite::Connection;
 use paris::info;
 use repository::activity_repository;
 use repository::activity_repository::insert_activity;
+use rusqlite::Connection;
 
 mod dnt_scraper;
 mod domain;
@@ -14,7 +14,6 @@ mod embedded {
 }
 
 fn main() {
-
     info!("Dine neste turer venter! 🥾🎿🧗‍\n️");
 
     info!("Setting up DB connection");
@@ -33,7 +32,6 @@ fn main() {
     for activity in &new_activities {
         insert_activity(&conn, activity);
     }
-
 
     notifier::notify_user(&new_activities);
 }

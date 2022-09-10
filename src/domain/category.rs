@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
-use rusqlite::ToSql;
 use rusqlite::types::ToSqlOutput;
+use rusqlite::ToSql;
+use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Eq, Hash)]

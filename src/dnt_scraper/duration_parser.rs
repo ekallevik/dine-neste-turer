@@ -1,9 +1,9 @@
 use chrono::Duration;
-use nom::sequence::{delimited, separated_pair, terminated};
-use nom::character::complete::{char, i64 as nom_i64};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
+use nom::character::complete::{char, i64 as nom_i64};
 use nom::error::Error;
+use nom::sequence::{delimited, separated_pair, terminated};
 use std::ops::Add;
 
 pub fn parse_duration(value: &str) -> Option<Duration> {
@@ -16,9 +16,14 @@ pub fn parse_duration(value: &str) -> Option<Duration> {
     }
 }
 
-
 fn parse_days(value: &str) -> Option<Duration> {
-    let raw_parser = terminated(nom_i64, alt((tag::<_, _, Error<_>>(" dager"), tag::<_, _, Error<_>>(" dag"))));
+    let raw_parser = terminated(
+        nom_i64,
+        alt((
+            tag::<_, _, Error<_>>(" dager"),
+            tag::<_, _, Error<_>>(" dag"),
+        )),
+    );
     let mut parser = delimited(tag("("), raw_parser, tag(")"));
     parser(value)
         .ok()
@@ -26,7 +31,13 @@ fn parse_days(value: &str) -> Option<Duration> {
 }
 
 fn parse_hours(value: &str) -> Option<Duration> {
-    let raw_parser = terminated(nom_i64, alt((tag::<_, _, Error<_>>(" timer"), tag::<_, _, Error<_>>(" time"))));
+    let raw_parser = terminated(
+        nom_i64,
+        alt((
+            tag::<_, _, Error<_>>(" timer"),
+            tag::<_, _, Error<_>>(" time"),
+        )),
+    );
     let mut parser = delimited(tag("("), raw_parser, tag(")"));
     parser(value)
         .ok()
@@ -34,18 +45,25 @@ fn parse_hours(value: &str) -> Option<Duration> {
 }
 
 fn parse_hours_and_minutes(value: &str) -> Option<Duration> {
-    let raw_parser = separated_pair(terminated(nom_i64, tag::<_, _, Error<_>>("t")), char(' '), terminated(nom_i64, tag::<_, _, Error<_>>("min")));
+    let raw_parser = separated_pair(
+        terminated(nom_i64, tag::<_, _, Error<_>>("t")),
+        char(' '),
+        terminated(nom_i64, tag::<_, _, Error<_>>("min")),
+    );
     let mut parser = delimited(tag("("), raw_parser, tag(")"));
     parser(value)
         .ok()
-        .map(|(_, (hours, minutes)): (_, (i64, i64))| Duration::hours(hours).add(Duration::minutes(minutes)))
+        .map(|(_, (hours, minutes)): (_, (i64, i64))| {
+            Duration::hours(hours).add(Duration::minutes(minutes))
+        })
 }
-
 
 #[cfg(test)]
 mod tests {
+    use crate::dnt_scraper::duration_parser::{
+        parse_days, parse_duration, parse_hours, parse_hours_and_minutes,
+    };
     use chrono::Duration;
-    use crate::dnt_scraper::duration_parser::{parse_days, parse_duration, parse_hours, parse_hours_and_minutes};
 
     #[test]
     fn days() {
@@ -61,8 +79,14 @@ mod tests {
 
     #[test]
     fn hours_and_minutes() {
-        assert_eq!(parse_hours_and_minutes("(1t 45min)"), Some(Duration::minutes(105)));
-        assert_eq!(parse_hours_and_minutes("(2t 55min)"), Some(Duration::minutes(175)));
+        assert_eq!(
+            parse_hours_and_minutes("(1t 45min)"),
+            Some(Duration::minutes(105))
+        );
+        assert_eq!(
+            parse_hours_and_minutes("(2t 55min)"),
+            Some(Duration::minutes(175))
+        );
     }
 
     #[test]

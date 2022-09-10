@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum Audience {

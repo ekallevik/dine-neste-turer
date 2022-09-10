@@ -1,9 +1,9 @@
-use std::fmt::{Display, Formatter};
-use chrono::{Duration, NaiveDate};
-use std::collections::HashSet;
-use itertools::join;
 use crate::domain::audience::Audience;
 use crate::domain::category::Category;
+use chrono::{Duration, NaiveDate};
+use itertools::join;
+use std::collections::HashSet;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -27,7 +27,12 @@ impl Activity {
 
 impl Display for Activity {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} - {}: {}", self.date.unwrap_or_default(), self.title, self.source)
+        write!(
+            f,
+            "{} - {}: {}",
+            self.date.unwrap_or_default(),
+            self.title,
+            self.source
+        )
     }
 }
-

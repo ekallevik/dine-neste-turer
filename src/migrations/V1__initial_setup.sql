@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS activity (
                         duration    TEXT,
                         description TEXT,
                         audiences   TEXT,
-                        organizer   TEXT
+                        organizer   TEXT NOT NULL
 )

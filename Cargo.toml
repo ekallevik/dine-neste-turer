@@ -9,6 +9,8 @@ edition = "2021"
 reqwest = { version = "0.11", features = ["blocking"] }
 scraper = "0.13.0"
 chrono = "0.4.1"
-rusqlite = { version = "*", features = ["bundled"] }
+rusqlite = { version = "*", features = ["bundled", "array"] }
 refinery = { version = "0.8", features = ["rusqlite-bundled"] }
 paris = { version = "1.5", features = ["macros"] }
+strum = { version = "0.24", features = ["derive", "strum_macros"] }
+itertools = "0.10.3"

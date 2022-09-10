@@ -1,14 +1,23 @@
 use paris::info;
-use rusqlite::Connection;
+use rusqlite::{Connection, params};
 use crate::Activity;
 
-pub fn insert_activity(conn: &Connection, activity: Activity) {
+pub fn insert_activity(conn: &Connection, activity: &Activity) {
     if activity_exist(conn, &activity.source) {
         info!("Activity {} already exists, skipping insertion", &activity.source)
     } else {
         info!("Inserting activity {}", &activity.title);
 
-        let params = [activity.title, activity.category.unwrap_or_default(), activity.date.unwrap_or_default().to_string(), activity.duration.unwrap_or_default(), activity.description.unwrap_or_default(), activity.audiences.unwrap_or_default(), activity.organizer.unwrap_or_default(), activity.source];
+        let params = params![
+                activity.title,
+                activity.category,
+                activity.date.unwrap_or_default().to_string(),
+                activity.duration,
+                activity.description,
+                activity.get_audiences_as_string(),
+                activity.organizer,
+                activity.source
+        ];
 
         // language=sqlite
         let sql = "
@@ -20,16 +29,14 @@ pub fn insert_activity(conn: &Connection, activity: Activity) {
     }
 }
 
-
 pub fn activity_exist(conn: &Connection, source: &String) -> bool {
-
     info!("Checking if source exists: {source}");
 
     let params = [source];
 
     // language=sqlite
     let sql = "SELECT title FROM activity where source = ?1";
-    let mut statement =  conn.prepare(sql).unwrap();
+    let mut statement = conn.prepare(sql).unwrap();
 
     let activity = statement.query_map(params, |_| {
         Ok(true)

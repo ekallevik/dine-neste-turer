@@ -31,8 +31,9 @@ fn main() {
         .collect();
 
     for activity in &new_activities {
-        insert_activity(&conn, activity.clone()); // fixme
+        insert_activity(&conn, activity);
     }
 
-    notifier::notify_user(new_activities);
+
+    notifier::notify_user(&new_activities);
 }

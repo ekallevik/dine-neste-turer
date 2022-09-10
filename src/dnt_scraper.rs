@@ -1,10 +1,18 @@
 use std::collections::HashSet;
 use std::hash::Hash;
+use std::ops::Add;
 use std::str::FromStr;
 use scraper::{ElementRef, Selector};
-use chrono::NaiveDate;
+use chrono::{Duration, NaiveDate};
+use nom::branch::alt;
+use nom::bytes::complete::{tag};
+use nom::character::complete::char;
+use nom::character::complete::i64 as nom_i64;
+use nom::sequence::{delimited, separated_pair, terminated};
 use paris::info;
 use crate::domain::{Activity, Audience, Category};
+use nom::error::Error;
+
 
 pub fn scrap_activities(source: &str) -> Vec<Activity> {
     let response = reqwest::blocking::get(source)
@@ -39,7 +47,14 @@ fn parse_activity(activity_html: ElementRef) -> Activity {
         .next()
         .unwrap();
 
-    let duration = parse_html(activity_html, &duration_selector);
+    let duration = parse_html(activity_html, &duration_selector)
+        .map(|value| parse_duration(&value));
+
+    let duration = match duration {
+        Some(v) => v,
+        None => None
+    };
+
     let description = parse_html(activity_html, &description_selector);
 
     let category = parse_html_to_t::<Category>(activity_html, &category_selector);
@@ -89,4 +104,77 @@ fn parse_html(html: ElementRef, selector: &Selector) -> Option<String> {
 
 fn parse_html_to_string(html: ElementRef, selector: &Selector, default: &str) -> String {
     parse_html(html, selector).unwrap_or(default.to_string())
+}
+
+fn parse_duration(value: &str) -> Option<Duration> {
+    if let Some(days) = parse_days(value) {
+        Some(days)
+    } else {
+        if let Some(hours) = parse_hours(value) {
+            Some(hours)
+        } else {
+            if let Some(minutes) = parse_hours_and_minutes(value) {
+                Some(minutes)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+
+fn parse_days(value: &str) -> Option<Duration> {
+    let raw_parser = terminated(nom_i64, alt((tag::<_, _, Error<_>>(" dager"), tag::<_, _, Error<_>>(" dag"))));
+    let mut parser = delimited(tag("("), raw_parser, tag(")"));
+    parser(value)
+        .ok()
+        .map(|(_, days): (_, i64)| Duration::days(days))
+}
+
+fn parse_hours(value: &str) -> Option<Duration> {
+    let raw_parser = terminated(nom_i64, alt((tag::<_, _, Error<_>>(" timer"), tag::<_, _, Error<_>>(" time"))));
+    let mut parser = delimited(tag("("), raw_parser, tag(")"));
+    parser(value)
+        .ok()
+        .map(|(_, hours): (_, i64)| Duration::hours(hours))
+}
+
+fn parse_hours_and_minutes(value: &str) -> Option<Duration> {
+    let raw_parser = separated_pair(terminated(nom_i64, tag::<_, _, Error<_>>("t")), char(' '), terminated(nom_i64, tag::<_, _, Error<_>>("min")));
+    let mut parser = delimited(tag("("), raw_parser, tag(")"));
+    parser(value)
+        .ok()
+        .map(|(_, (hours, minutes)): (_, (i64, i64))| Duration::hours(hours).add(Duration::minutes(minutes)))
+}
+
+
+#[cfg(test)]
+mod tests {
+    use chrono::Duration;
+    use crate::dnt_scraper::{parse_days, parse_duration, parse_hours, parse_hours_and_minutes};
+
+    #[test]
+    fn days() {
+        assert_eq!(parse_days("(1 dag)"), Some(Duration::days(1)));
+        assert_eq!(parse_days("(2 dager)"), Some(Duration::days(2)));
+    }
+
+    #[test]
+    fn hours() {
+        assert_eq!(parse_hours("(1 time)"), Some(Duration::hours(1)));
+        assert_eq!(parse_hours("(2 timer)"), Some(Duration::hours(2)));
+    }
+
+    #[test]
+    fn hours_and_minutes() {
+        assert_eq!(parse_hours_and_minutes("(1t 45min)"), Some(Duration::minutes(105)));
+        assert_eq!(parse_hours_and_minutes("(2t 55min)"), Some(Duration::minutes(175)));
+    }
+
+    #[test]
+    fn should_parse_duration() {
+        assert_eq!(parse_duration("(1 dag)"), Some(Duration::days(1)));
+        assert_eq!(parse_duration("(2 timer)"), Some(Duration::hours(2)));
+        assert_eq!(parse_duration("(3t 15min)"), Some(Duration::minutes(195)));
+    }
 }

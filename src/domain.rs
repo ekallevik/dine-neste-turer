@@ -1,18 +1,18 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
-use chrono::NaiveDate;
+use chrono::{Duration, NaiveDate};
 use itertools::join;
 use rusqlite::ToSql;
 use rusqlite::types::ToSqlOutput;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 #[allow(unused)]
 pub struct Activity {
     pub title: String,
     pub category: Option<Category>,
     pub date: Option<NaiveDate>,
-    pub duration: Option<String>,
+    pub duration: Option<Duration>,
     pub description: Option<String>,
     pub audiences: HashSet<Audience>,
     pub organizer: String,

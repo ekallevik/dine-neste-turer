@@ -12,7 +12,7 @@ pub fn insert_activity(conn: &Connection, activity: &Activity) {
                 activity.title,
                 activity.category,
                 activity.date.unwrap_or_default().to_string(),
-                activity.duration,
+                activity.duration.map(|v| v.num_hours()),
                 activity.description,
                 activity.get_audiences_as_string(),
                 activity.organizer,
@@ -21,7 +21,7 @@ pub fn insert_activity(conn: &Connection, activity: &Activity) {
 
         // language=sqlite
         let sql = "
-        INSERT INTO activity (title, category, date, duration, description, audiences, organizer, source)
+        INSERT INTO activity (title, category, date, duration_in_hours, description, audiences, organizer, source)
         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
     ";
 

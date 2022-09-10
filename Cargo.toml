@@ -14,3 +14,4 @@ refinery = { version = "0.8", features = ["rusqlite-bundled"] }
 paris = { version = "1.5", features = ["macros"] }
 strum = { version = "0.24", features = ["derive", "strum_macros"] }
 itertools = "0.10.3"
+nom = "7.1.1"

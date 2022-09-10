@@ -1,7 +1,7 @@
-use rusqlite::{Connection};
+use rusqlite::Connection;
 use paris::info;
-use domain::Activity;
-use crate::repository::insert_activity;
+use repository::activity_repository;
+use repository::activity_repository::insert_activity;
 
 mod dnt_scraper;
 mod domain;
@@ -23,11 +23,11 @@ fn main() {
 
     let source = "https://www.dnt.no/aktiviteter/?audiences=adults%2Cyouth%2Cmountaineers&difficulties=hard%2Cdemanding&organizers=forening%3A2%2Cforening%3A23";
     info!("Looking for activities at: \n\t{}\n", source);
-    let activities = dnt_scraper::scrap_activities(source);
+    let activities = dnt_scraper::scraper::scrap_activities(source);
 
     let new_activities: Vec<_> = activities
         .into_iter()
-        .filter(|a| !repository::activity_exist(&conn, &a.source))
+        .filter(|a| !activity_repository::activity_exist(&conn, &a.source))
         .collect();
 
     for activity in &new_activities {

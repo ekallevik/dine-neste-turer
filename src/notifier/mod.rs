@@ -1,5 +1,5 @@
 use paris::info;
-use crate::Activity;
+use crate::domain::activity::Activity;
 
 pub fn notify_user(activities: &Vec<Activity>) {
 

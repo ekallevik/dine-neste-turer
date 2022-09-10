@@ -1,6 +1,6 @@
 use paris::info;
 use rusqlite::{Connection, params};
-use crate::Activity;
+use crate::domain::activity::Activity;
 
 pub fn insert_activity(conn: &Connection, activity: &Activity) {
     if activity_exist(conn, &activity.source) {

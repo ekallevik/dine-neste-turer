@@ -1,6 +1,5 @@
 use rusqlite::{Connection};
 use paris::info;
-use domain::Activity;
 use crate::repository::insert_activity;
 
 mod dnt_scraper;

@@ -5,13 +5,15 @@ use std::str::FromStr;
 use scraper::{ElementRef, Selector};
 use chrono::{Duration, NaiveDate};
 use nom::branch::alt;
-use nom::bytes::complete::{tag};
+use nom::bytes::complete::tag;
 use nom::character::complete::char;
 use nom::character::complete::i64 as nom_i64;
 use nom::sequence::{delimited, separated_pair, terminated};
 use paris::info;
-use crate::domain::{Activity, Audience, Category};
+use crate::domain::activity::Activity;
 use nom::error::Error;
+use crate::domain::audience::Audience;
+use crate::domain::category::Category;
 
 
 pub fn scrap_activities(source: &str) -> Vec<Activity> {

@@ -29,5 +29,5 @@ pub fn parse_html(html: ElementRef, selector: &Selector) -> Option<String> {
 }
 
 pub fn parse_html_to_string(html: ElementRef, selector: &Selector, default: &str) -> String {
-    parse_html(html, selector).unwrap_or(default.to_string())
+    parse_html(html, selector).unwrap_or_else(|| default.to_string())
 }

@@ -1,6 +1,7 @@
-use rusqlite::{Connection};
+use rusqlite::Connection;
 use paris::info;
-use crate::repository::insert_activity;
+use repository::activity_repository;
+use repository::activity_repository::insert_activity;
 
 mod dnt_scraper;
 mod domain;
@@ -26,7 +27,7 @@ fn main() {
 
     let new_activities: Vec<_> = activities
         .into_iter()
-        .filter(|a| !repository::activity_exist(&conn, &a.source))
+        .filter(|a| !activity_repository::activity_exist(&conn, &a.source))
         .collect();
 
     for activity in &new_activities {
